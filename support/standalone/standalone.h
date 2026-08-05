@@ -46,21 +46,21 @@ extern "C"
 /*
 ** Configuration
 */
-#define CRYPTOLIB_HOSTNAME "cryptolib"
-#define GSW_HOSTNAME       "cosmos"
-#define SC_HOSTNAME        "radio-sim"
+#define CRYPTOLIB_HOSTNAME "shire-cryptolib"
+#define GSW_HOSTNAME       "shire-gsw"
+#define SC_HOSTNAME        "shire-director"
 
 #ifndef CRYPTO_RX_GROUND_PORT
-#define TC_APPLY_PORT 6010
+#define TC_APPLY_PORT 12345
 #endif
 #ifndef CRYPTO_RX_GROUND_PORT
-#define TC_APPLY_FWD_PORT 8010
+#define TC_APPLY_FWD_PORT 12343
 #endif
 #ifndef CRYPTO_RX_GROUND_PORT
-#define TM_PROCESS_PORT 8011
+#define TM_PROCESS_PORT 12344
 #endif
 #ifndef CRYPTO_RX_GROUND_PORT
-#define TM_PROCESS_FWD_PORT 6011
+#define TM_PROCESS_FWD_PORT 12346
 #endif
 
 #define CRYPTO_STANDALONE_HANDLE_FRAMING
