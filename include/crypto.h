@@ -369,7 +369,6 @@ extern SaInterface                           sa_if;
 extern CryptographyInterface                 cryptography_if;
 
 // extern crypto_key_t ak_ring[NUM_KEYS];
-extern SadbMariaDBConfig_t *sa_mariadb_config;
 
 // OCF
 extern uint8_t                    ocf;

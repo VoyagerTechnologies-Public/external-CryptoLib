@@ -1,0 +1,12 @@
+FROM ghcr.io/voyagertechnologies-public/shire-base:latest
+ENV LD_LIBRARY_PATH=/app
+
+# Copy built files into the image
+COPY build/libcryptolib.so /app/libcryptolib.so
+COPY build/support/standalone /app/standalone
+
+# Set working directory
+WORKDIR /app
+
+# Set command to run
+CMD ["/app/standalone"]
