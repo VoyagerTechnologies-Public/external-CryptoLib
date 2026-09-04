@@ -1,4 +1,4 @@
-FROM ghcr.io/voyagertechnologies-public/shire-base:latest
+FROM ghcr.io/voyagertechnologies-public/shire-base:0.0.0
 ENV LD_LIBRARY_PATH=/app
 
 # Copy built files into the image
