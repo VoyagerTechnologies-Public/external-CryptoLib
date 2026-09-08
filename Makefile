@@ -20,9 +20,9 @@ all:
 	$(MAKE) wolf
 
 export BUILDDIR ?= $(CURDIR)/build
-export BUILD_IMAGE ?= ghcr.io/voyagertechnologies-public/shire-base:latest
+export BUILD_IMAGE ?= ghcr.io/voyagertechnologies-public/shire-base:0.0.0
 export RUNTIME_CRYPTOLIB_IMAGE_NAME ?= shire-cryptolib-$(MISSION)
-export SPACECRAFT ?= latest
+export SPACECRAFT ?= 0.0.0
 export MISSION ?= default
 export SHIRE_DIR ?= $(CURDIR)/..
 
