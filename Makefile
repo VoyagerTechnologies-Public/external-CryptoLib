@@ -25,6 +25,10 @@ export RUNTIME_CRYPTOLIB_IMAGE_NAME ?= shire-cryptolib-$(MISSION)
 export SPACECRAFT ?= 0.0.0
 export MISSION ?= default
 export SHIRE_DIR ?= $(CURDIR)/..
+# Defaults to SPACECRAFT; a Monte Carlo campaign trial (issue #23) passes
+# its own content-addressed build-key tag instead, so campaign and manual
+# dev-loop builds never collide on the same tag.
+export IMAGE_TAG ?= $(SPACECRAFT)
 
 # Determine number of parallel jobs to avoid maxing out low-power systems (Raspberry Pi etc.).
 # Use `nproc - 1` but ensure at least 1 job.
@@ -50,7 +54,7 @@ kmc:
 shire: clean
 	mkdir -p $(BUILDDIR)
 	docker run --rm -v $(SHIRE_DIR):$(SHIRE_DIR) --name "shire_cryptolib_build" -w $(BUILDDIR) --user $(shell id -u):$(shell id -g) $(BUILD_IMAGE) sh -c 'cmake .. -DMC_INTERNAL=1 -DCRYPTO_LIBGCRYPT=1 -DKEY_INTERNAL=1 -DSA_INTERNAL=1 -DSUPPORT=1 && make -j$(JOBS)'
-	docker build -t $(RUNTIME_CRYPTOLIB_IMAGE_NAME):$(SPACECRAFT) -f support/Dockerfile.standalone .
+	docker build -t $(RUNTIME_CRYPTOLIB_IMAGE_NAME):$(IMAGE_TAG) -f support/Dockerfile.standalone .
 
 wolf:
 	./support/scripts/wolf_docker_build.sh
