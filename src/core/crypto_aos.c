@@ -63,7 +63,7 @@ int32_t Crypto_AOS_ApplySecurity(uint8_t *pTfBuffer, uint16_t len_ingest)
     uint16_t               pdu_len         = -1;
     uint32_t               pkcs_padding    = 0;
     uint16_t               new_fecf        = 0x0000;
-    uint8_t                ecs_is_aead_algorithm;
+    uint8_t                ecs_is_aead_algorithm = CRYPTO_FALSE;
     SecurityAssociation_t *sa_ptr      = NULL;
     uint8_t                tfvn        = 0;
     uint16_t               scid        = 0;
@@ -940,7 +940,7 @@ int32_t Crypto_AOS_ProcessSecurity(uint8_t *p_ingest, uint16_t len_ingest, AOS_t
     uint8_t                aad[1786];
     uint16_t               aad_len  = 0;
     uint16_t               byte_idx = 0;
-    uint8_t                ecs_is_aead_algorithm;
+    uint8_t                ecs_is_aead_algorithm = CRYPTO_FALSE;
     uint32_t               encryption_cipher = 0;
     uint8_t                iv_loc            = 0;
     int                    mac_loc           = 0;

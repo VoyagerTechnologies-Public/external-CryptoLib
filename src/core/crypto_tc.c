@@ -1040,7 +1040,7 @@ int32_t Crypto_TC_ApplySecurity_Cam(const uint8_t *p_in_frame, const uint16_t in
     uint8_t                *aad                               = NULL;
     uint16_t                new_enc_frame_header_field_length = 0;
     uint32_t                encryption_cipher                 = 0;
-    uint8_t                 ecs_is_aead_algorithm;
+    uint8_t                 ecs_is_aead_algorithm = CRYPTO_FALSE;
     int                     i;
     uint32_t                pkcs_padding     = 0;
     crypto_key_t           *ekp              = NULL;
