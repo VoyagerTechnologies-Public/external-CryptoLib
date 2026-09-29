@@ -258,11 +258,13 @@ typedef struct
 #define CRYPTO_AOS_CONFIG_SIZE (sizeof(CryptoConfigAOS_t))
 
 typedef struct _TCGvcidManagedParameters_t TCGvcidManagedParameters_t;
+/* Use one storage type for each packed identifier: mixed uint8_t/uint16_t
+ * bit-fields have compiler-version-dependent offsets. */
 struct _TCGvcidManagedParameters_t
 {
-    uint8_t              tfvn : 4;  // Transfer Frame Version Number
+    uint16_t             tfvn : 4;  // Transfer Frame Version Number
     uint16_t             scid : 10; // SpacecraftID
-    uint8_t              vcid : 6;  // Virtual Channel ID
+    uint16_t             vcid : 6;  // Virtual Channel ID
     FecfPresent          has_fecf;
     TcSegmentHdrsPresent has_segmentation_hdr;
     uint16_t             max_frame_size; // Maximum TC/TM Frame Length with headers
@@ -286,9 +288,9 @@ struct _TMGvcidManagedParameters_t
 typedef struct _AOSGvcidManagedParameters_t AOSGvcidManagedParameters_t;
 struct _AOSGvcidManagedParameters_t
 {
-    uint8_t              tfvn : 2; // Transfer Frame Version Number
-    uint8_t              scid : 8; // SpacecraftID
-    uint8_t              vcid : 6; // Virtual Channel ID
+    uint16_t             tfvn : 2; // Transfer Frame Version Number
+    uint16_t             scid : 8; // SpacecraftID
+    uint16_t             vcid : 6; // Virtual Channel ID
     FecfPresent          has_fecf;
     AosFhecPresent       aos_has_fhec;
     AosInsertZonePresent aos_has_iz;
