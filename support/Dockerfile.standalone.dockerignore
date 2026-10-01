@@ -1,0 +1,8 @@
+# Keep the standalone runtime context independent of CryptoLib sources.
+*
+!support/
+!support/Dockerfile.standalone
+!build/
+!build/libcryptolib.so
+!build/support/
+!build/support/standalone
