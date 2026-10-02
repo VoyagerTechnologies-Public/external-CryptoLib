@@ -50,8 +50,8 @@ kmc:
 
 shire: clean
 	mkdir -p $(BUILDDIR)
-	docker run --rm -v $(SHIRE_DIR):$(SHIRE_DIR) --name "shire_cryptolib_build" -w $(BUILDDIR) --user $(shell id -u):$(shell id -g) $(BUILD_IMAGE) sh -c 'cmake .. -DMC_INTERNAL=1 -DCRYPTO_LIBGCRYPT=1 -DKEY_INTERNAL=1 -DSA_INTERNAL=1 -DSUPPORT=1 && make -j$(JOBS)'
-	docker build -t $(RUNTIME_CRYPTOLIB_IMAGE_NAME):$(IMAGE_TAG) -f support/Dockerfile.standalone .
+	docker run --rm --network none -v $(SHIRE_DIR):$(SHIRE_DIR) --name "shire_cryptolib_build" -w $(BUILDDIR) --user $(shell id -u):$(shell id -g) $(BUILD_IMAGE) sh -c 'cmake .. -DMC_INTERNAL=1 -DCRYPTO_LIBGCRYPT=1 -DKEY_INTERNAL=1 -DSA_INTERNAL=1 -DSUPPORT=1 && make -j$(JOBS)'
+	docker build --pull=false --network=none -t $(RUNTIME_CRYPTOLIB_IMAGE_NAME):$(IMAGE_TAG) -f support/Dockerfile.standalone .
 
 wolf:
 	./support/scripts/wolf_docker_build.sh
