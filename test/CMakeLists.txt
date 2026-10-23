@@ -37,6 +37,10 @@ add_test(NAME UT_CRYPTO
          COMMAND ${PROJECT_BINARY_DIR}/bin/ut_crypto 
          WORKING_DIRECTORY ${PROJECT_TEST_DIR})
 
+add_test(NAME UT_SHIRE_SECURITY
+         COMMAND ${PROJECT_BINARY_DIR}/bin/ut_shire_security
+         WORKING_DIRECTORY ${PROJECT_TEST_DIR})
+
 add_test(NAME UT_AOS_APPLY
          COMMAND ${PROJECT_BINARY_DIR}/bin/ut_aos_apply
          WORKING_DIRECTORY ${PROJECT_TEST_DIR})
