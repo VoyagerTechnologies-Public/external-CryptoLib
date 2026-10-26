@@ -113,6 +113,7 @@ static int32_t sa_init(void)
             //  Lots of small configuration differences between MySQL connector & MariaDB Connector
             //  Only MariaDB Connector is implemented here:
             //  https://wikidev.in/wiki/C/mysql_mysql_h/mysql_options | https://mariadb.com/kb/en/mysql_optionsv/
+#if defined(MARIADB_BASE_VERSION)
             if (sa_mariadb_config->mysql_mtls_key != NULL)
             {
                 mysql_optionsv(con, MYSQL_OPT_SSL_KEY, sa_mariadb_config->mysql_mtls_key);
@@ -141,6 +142,44 @@ static int32_t sa_init(void)
             {
                 mysql_optionsv(con, MYSQL_OPT_SSL_ENFORCE, &(sa_mariadb_config->mysql_require_secure_transport));
             }
+#else
+            if (sa_mariadb_config->mysql_mtls_key != NULL)
+            {
+                mysql_options(con, MYSQL_OPT_SSL_KEY, sa_mariadb_config->mysql_mtls_key);
+            }
+            if (sa_mariadb_config->mysql_mtls_cert != NULL)
+            {
+                mysql_options(con, MYSQL_OPT_SSL_CERT, sa_mariadb_config->mysql_mtls_cert);
+            }
+            if (sa_mariadb_config->mysql_mtls_ca != NULL)
+            {
+                mysql_options(con, MYSQL_OPT_SSL_CA, sa_mariadb_config->mysql_mtls_ca);
+            }
+            if (sa_mariadb_config->mysql_mtls_capath != NULL)
+            {
+                mysql_options(con, MYSQL_OPT_SSL_CAPATH, sa_mariadb_config->mysql_mtls_capath);
+            }
+            /* Oracle MySQL Connector/C does not enable TLS just because the
+             * certificate options above are present.  Require TLS explicitly
+             * and verify the configured hostname against the server cert. */
+            if (sa_mariadb_config->mysql_require_secure_transport == CRYPTO_TRUE)
+            {
+                unsigned int ssl_mode = sa_mariadb_config->mysql_tls_verify_server == CRYPTO_TRUE
+                                            ? SSL_MODE_VERIFY_IDENTITY
+                                            : SSL_MODE_REQUIRED;
+                mysql_options(con, MYSQL_OPT_SSL_MODE, &ssl_mode);
+            }
+            else if (sa_mariadb_config->mysql_require_secure_transport == CRYPTO_FALSE)
+            {
+                if (sa_mariadb_config->mysql_tls_verify_server == CRYPTO_TRUE)
+                {
+                    unsigned int ssl_mode = SSL_MODE_VERIFY_IDENTITY;
+                    mysql_options(con, MYSQL_OPT_SSL_MODE, &ssl_mode);
+                }
+            }
+
+#endif
+
             // if encrypted connection (TLS) connection. No need for SSL Key
             if (mysql_real_connect(con, sa_mariadb_config->mysql_hostname, sa_mariadb_config->mysql_username,
                                    sa_mariadb_config->mysql_password, sa_mariadb_config->mysql_database,
@@ -217,10 +256,25 @@ static int32_t sa_save_sa(SecurityAssociation_t *sa)
     char  update_sa_query[2048];
     char *iv_h = malloc(sa->iv_len * 2 + 1);
 
-    convert_byte_array_to_hexstring(sa->iv, sa->iv_len, iv_h);
+    if (sa->null_iv == IV_NULL_FALSE)
+    {
+        convert_byte_array_to_hexstring(sa->iv, sa->iv_len, iv_h);
+    }
+    else
+    {
+        iv_h[0] = '\0';
+    }
 
     char *arsn_h = malloc(sa->arsn_len * 2 + 1);
-    convert_byte_array_to_hexstring(sa->arsn, sa->arsn_len, arsn_h);
+
+    if (sa->null_arsn == ARSN_NULL_FALSE)
+    {
+        convert_byte_array_to_hexstring(sa->arsn, sa->arsn_len, arsn_h);
+    }
+    else
+    {
+        arsn_h[0] = '\0';
+    }
 
     snprintf(update_sa_query, sizeof(update_sa_query), SQL_SADB_UPDATE_IV_ARC_BY_SPI, mariadb_table_name, iv_h, arsn_h,
              sa->spi, sa->gvcid_blk.tfvn, sa->gvcid_blk.scid, sa->gvcid_blk.vcid, sa->gvcid_blk.mapid);
@@ -564,14 +618,34 @@ static int32_t parse_sa_from_mysql_query(char *query, SecurityAssociation_t **se
     {
         if (sa->iv_len > 0)
         {
+            if (iv_byte_str[0] == '\0')
+            {
+                sa->null_iv = IV_NULL_TRUE;
+            }
             status = convert_hexstring_to_byte_array(iv_byte_str, sa->iv, sa->iv_len);
         }
     }
-
-    if (sa->arsn_len > 0)
+    else
     {
-        status = convert_hexstring_to_byte_array(arc_byte_str, sa->arsn, sa->arsn_len);
+        sa->null_iv = IV_NULL_TRUE;
     }
+
+    if (arc_byte_str != NULL)
+    {
+        if (sa->arsn_len > 0)
+        {
+            if (arc_byte_str[0] == '\0')
+            {
+                sa->null_arsn = ARSN_NULL_TRUE;
+            }
+            status = convert_hexstring_to_byte_array(arc_byte_str, sa->arsn, sa->arsn_len);
+        }
+    }
+    else
+    {
+        sa->null_arsn = ARSN_NULL_TRUE;
+    }
+
     if (sa->abm_len > 0)
     {
         status = convert_hexstring_to_byte_array(abm_byte_str, sa->abm, sa->abm_len);

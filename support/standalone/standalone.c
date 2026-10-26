@@ -22,6 +22,8 @@
 *******************************************************************************/
 
 #include "standalone.h"
+#include "crypto_shire.h"
+#include <strings.h>
 
 /*
 ** Global Variables
@@ -443,6 +445,18 @@ int32_t crypto_standalone_socket_init(udp_info_t *sock, int32_t port, uint8_t bi
     return status;
 }
 
+/* Reads an on/off environment flag; anything but 0/false/off/no (or unset) is on. */
+static uint8_t crypto_standalone_env_flag(const char *name)
+{
+    const char *value = getenv(name);
+    if (value == NULL)
+    {
+        return 1;
+    }
+    return (strcmp(value, "0") != 0 && strcasecmp(value, "false") != 0 && strcasecmp(value, "off") != 0 &&
+            strcasecmp(value, "no") != 0);
+}
+
 int32_t crypto_reset(void)
 {
     int32_t status;
@@ -457,6 +471,23 @@ int32_t crypto_reset(void)
     if (status != CRYPTO_LIB_SUCCESS)
     {
         printf("CryptoLib initialization failed with error %d \n", status);
+    }
+    else
+    {
+        /* The flight radio app must be built with the same settings (radio uplink_encryption/downlink_encryption). */
+        uint8_t uplink   = crypto_standalone_env_flag("SHIRE_UPLINK_ENCRYPTION");
+        uint8_t downlink = crypto_standalone_env_flag("SHIRE_DOWNLINK_ENCRYPTION");
+
+        status = Crypto_Shire_Configure_Link_Security(CRYPTO_SHIRE_END_GROUND, uplink, downlink);
+        if (status != CRYPTO_LIB_SUCCESS)
+        {
+            printf("CryptoLib link security configuration failed with error %d \n", status);
+        }
+        else
+        {
+            printf("CryptoLib link security: uplink (TC) %s, downlink (TM) %s\n", uplink ? "encrypted" : "clear",
+                   downlink ? "encrypted" : "clear");
+        }
     }
 
     return status;
